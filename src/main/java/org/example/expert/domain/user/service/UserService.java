@@ -25,11 +25,15 @@ public class UserService {
 
     @Transactional
     public void changePassword(long userId, UserChangePasswordRequest userChangePasswordRequest) {
-        if (userChangePasswordRequest.getNewPassword().length() < 8 ||
-                !userChangePasswordRequest.getNewPassword().matches(".*\\d.*") ||
-                !userChangePasswordRequest.getNewPassword().matches(".*[A-Z].*")) {
-            throw new InvalidRequestException("새 비밀번호는 8자 이상이어야 하고, 숫자와 대문자를 포함해야 합니다.");
-        }
+
+        // LV.2 - 코드 개선 - 3
+        // 해당 API의 요청 DTO에서 처리할 수 있게 개선 -> Validation 어노테이션을 dto에서 사용하자
+        // 입력값 데이터 검증 로직은 서비스가 아니라 DTO에서 처리하는게 낫다고 함 (유지보수성)
+//        if (userChangePasswordRequest.getNewPassword().length() < 8 ||
+//                !userChangePasswordRequest.getNewPassword().matches(".*\\d.*") ||
+//                !userChangePasswordRequest.getNewPassword().matches(".*[A-Z].*")) {
+//            throw new InvalidRequestException("새 비밀번호는 8자 이상이어야 하고, 숫자와 대문자를 포함해야 합니다.");
+//        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new InvalidRequestException("User not found"));
