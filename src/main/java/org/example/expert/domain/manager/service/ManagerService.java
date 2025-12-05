@@ -35,6 +35,18 @@ public class ManagerService {
         Todo todo = todoRepository.findById(todoId)
                 .orElseThrow(() -> new InvalidRequestException("Todo not found"));
 
+        // 2. 테스트 코드 연습 - 2
+        // 팀원이 로직을 수정했는데, 기존에 성공하던 테스트 코드가 실패
+        // 테스트가 성공할 수 있도록 서비스 로직을 수정
+        // Unexpected exception type thrown, expected: <org.example.expert.domain.common.exception.InvalidRequestException> but was: <java.lang.NullPointerException>
+        //필요   :class org.example.expert.domain.common.exception.InvalidRequestException
+        //실제   :class java.lang.NullPointerException
+
+        // 유저가 널값인 경우를 추가
+        if (todo.getUser() == null) {
+            throw new InvalidRequestException("일정을 생성한 유저만 담당자를 지정할 수 있습니다.");
+        }
+
         if (!ObjectUtils.nullSafeEquals(user.getId(), todo.getUser().getId())) {
             throw new InvalidRequestException("일정을 생성한 유저만 담당자를 지정할 수 있습니다.");
         }

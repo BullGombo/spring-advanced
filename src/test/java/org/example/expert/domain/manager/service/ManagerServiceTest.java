@@ -38,17 +38,25 @@ class ManagerServiceTest {
     @InjectMocks
     private ManagerService managerService;
 
+    // 2. 테스트 코드 연습 - 2
+    // 테스트가 성공하고 컨텍스트와 일치하도록 테스트 코드와 테스트 코드 메서드명을 수정
+    // 던지는 에러가 NullPointerException이 아니므로 메서드명 또한 수정
     @Test
-    public void manager_목록_조회_시_Todo가_없다면_NPE_에러를_던진다() {
+    public void manager_목록_조회_시_Todo가_없다면_InvalidRequestException을_던진다() {
         // given
         long todoId = 1L;
         given(todoRepository.findById(todoId)).willReturn(Optional.empty());
 
         // when & then
         InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> managerService.getManagers(todoId));
-        assertEquals("Manager not found", exception.getMessage());
+        // 실제 ManagerService에 들어가서 확인했더니 메세지가 틀려있었음
+        assertEquals("Todo not found", exception.getMessage());
     }
 
+
+    // 2. 테스트 코드 연습 - 2
+    // 팀원이 로직을 수정했는데, 기존에 성공하던 테스트 코드가 실패
+    // 테스트가 성공할 수 있도록 서비스 로직을 수정
     @Test
     void todo의_user가_null인_경우_예외가_발생한다() {
         // given
@@ -63,6 +71,9 @@ class ManagerServiceTest {
 
         given(todoRepository.findById(todoId)).willReturn(Optional.of(todo));
 
+        // Unexpected exception type thrown, expected: <org.example.expert.domain.common.exception.InvalidRequestException> but was: <java.lang.NullPointerException>
+        //필요   :class org.example.expert.domain.common.exception.InvalidRequestException
+        //실제   :class java.lang.NullPointerException
         // when & then
         InvalidRequestException exception = assertThrows(InvalidRequestException.class, () ->
             managerService.saveManager(authUser, todoId, managerSaveRequest)
@@ -70,6 +81,34 @@ class ManagerServiceTest {
 
         assertEquals("일정을 생성한 유저만 담당자를 지정할 수 있습니다.", exception.getMessage());
     }
+    // 확인용 서비스 메서드
+    //     @Transactional
+    //    public ManagerSaveResponse saveManager(AuthUser authUser, long todoId, ManagerSaveRequest managerSaveRequest) {
+    //        // 일정을 만든 유저
+    //        User user = User.fromAuthUser(authUser);
+    //        Todo todo = todoRepository.findById(todoId)
+    //                .orElseThrow(() -> new InvalidRequestException("Todo not found"));
+    //
+    //        if (!ObjectUtils.nullSafeEquals(user.getId(), todo.getUser().getId())) {
+    //            throw new InvalidRequestException("일정을 생성한 유저만 담당자를 지정할 수 있습니다.");
+    //        }
+    //
+    //        User managerUser = userRepository.findById(managerSaveRequest.getManagerUserId())
+    //                .orElseThrow(() -> new InvalidRequestException("등록하려고 하는 담당자 유저가 존재하지 않습니다."));
+    //
+    //        if (ObjectUtils.nullSafeEquals(user.getId(), managerUser.getId())) {
+    //            throw new InvalidRequestException("일정 작성자는 본인을 담당자로 등록할 수 없습니다.");
+    //        }
+    //
+    //        Manager newManagerUser = new Manager(managerUser, todo);
+    //        Manager savedManagerUser = managerRepository.save(newManagerUser);
+    //
+    //        return new ManagerSaveResponse(
+    //                savedManagerUser.getId(),
+    //                new UserResponse(managerUser.getId(), managerUser.getEmail())
+    //        );
+    //    }
+
 
     @Test // 테스트코드 샘플
     public void manager_목록_조회에_성공한다() {
